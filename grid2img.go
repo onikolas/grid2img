@@ -58,6 +58,8 @@ func GridToImage(g *Grid) *image.RGBA {
 
 type Cell struct {
 	Color color.RGBA
+	Image string
+	img   *image.RGBA
 }
 
 func (a Cell) Paint(x, y, w int, img *image.RGBA) {
@@ -66,6 +68,7 @@ func (a Cell) Paint(x, y, w int, img *image.RGBA) {
 			img.SetRGBA(j, i, a.Color)
 		}
 	}
+
 }
 
 func main() {
