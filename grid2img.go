@@ -3,12 +3,13 @@ package main
 import (
 	"encoding/json"
 	"flag"
+	"fmt"
 	"image"
 	"image/color"
+	_ "image/jpeg"
 	"image/png"
 	"io/ioutil"
 	"os"
-	//	"strconv"
 )
 
 type Grid struct {
@@ -16,15 +17,6 @@ type Grid struct {
 	Tiles     map[int]Cell
 	CellWidth int
 }
-
-// makes the int keys into string keys to satisfy json
-/*func (i cellTypeMap) MarshalJSON() ([]byte, error) {
-	x := make(map[string]CellPainter)
-	for k, v := range i {
-		x[strconv.FormatInt(int64(k), 10)] = v
-	}
-	return json.Marshal(x)
-}*/
 
 func InitGrid(x, y, cellWidth int) *Grid {
 	g := &Grid{}
@@ -35,6 +27,30 @@ func InitGrid(x, y, cellWidth int) *Grid {
 	}
 	g.Tiles = make(map[int]Cell)
 	return g
+}
+
+func LoadTiles(g *Grid) {
+	fmt.Println("Loading tiles...")
+	for _, v := range g.Tiles {
+		if v.Image != "" {
+			file, err := os.Open(v.Image)
+			if err != nil {
+				fmt.Println("Could not open ", v.Image, err)
+				continue
+			}
+			defer file.Close()
+
+			im, _, err := image.Decode(file)
+			if err != nil {
+				fmt.Println("Could not load ", v.Image, err)
+				v.img = nil
+			} else {
+				fmt.Println(v.Image)
+				v.img = im
+			}
+
+		}
+	}
 }
 
 func GridToImage(g *Grid) *image.RGBA {
@@ -59,16 +75,19 @@ func GridToImage(g *Grid) *image.RGBA {
 type Cell struct {
 	Color color.RGBA
 	Image string
-	img   *image.RGBA
+	img   *image.Image
 }
 
+// Paint a sub region of img with the contents of this cell.
+// Color fills the cell with that color
+// Image fills the cell with the contents of Image (possibly scaled)
+// Effects are additive.
 func (a Cell) Paint(x, y, w int, img *image.RGBA) {
 	for i := y * w; i < (y+1)*w; i++ {
 		for j := x * w; j < (x+1)*w; j++ {
 			img.SetRGBA(j, i, a.Color)
 		}
 	}
-
 }
 
 func main() {
@@ -86,6 +105,9 @@ func main() {
 	if err := json.Unmarshal(dat, &g); err != nil {
 		panic(err)
 	}
+
+	// load tile images if any
+	LoadTiles(&g)
 
 	// make the image
 	img := GridToImage(&g)
