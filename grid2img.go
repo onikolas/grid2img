@@ -82,7 +82,6 @@ type Cell struct {
 // Paint a sub region of img with the contents of this cell.
 // Color fills the cell with that color
 // Image fills the cell with the contents of Image (possibly scaled)
-// Effects are additive.
 func (a Cell) Paint(x, y, w int, img *image.RGBA) {
 	for i := y * w; i < (y+1)*w; i++ {
 		for j := x * w; j < (x+1)*w; j++ {
@@ -101,23 +100,23 @@ func (a Cell) Paint(x, y, w int, img *image.RGBA) {
 	for i := 0; i < w; i++ {
 		for j := 0; j < w; j++ {
 
-			/*avg_col := color.RGBA{0, 0, 0, 255}
-			for k := i * avgh; k < (i+1)*avgh; k++ {
-				for l := j * avgw; l < (j+1)*avgw; l++ {
-					rgba := color.RGBAModel.Convert(a.img.At(l, k))
+			avgr, avgg, avgb := 0, 0, 0
+			for k := 0; k < avgh; k++ {
+				for l := 0; l < avgw; l++ {
+					rgba := color.RGBAModel.Convert(a.img.At(j*avgw+l, i*avgh+k))
 					//avg_col.A += rgba.(color.RGBA).A
-					avg_col.R += rgba.(color.RGBA).R
-					avg_col.G += rgba.(color.RGBA).G
-					avg_col.B += rgba.(color.RGBA).B
+					avgr += int(rgba.(color.RGBA).R)
+					avgg += int(rgba.(color.RGBA).G)
+					avgb += int(rgba.(color.RGBA).B)
 				}
 			}
-			avg_col.R = uint8(int(avg_col.R) / (avgw * avgh))
-			avg_col.G = uint8(int(avg_col.G) / (avgw * avgh))
-			avg_col.B = uint8(int(avg_col.B) / (avgw * avgh))
-			img.SetRGBA(j, i, avg_col)*/
-
-			rgba := color.RGBAModel.Convert(a.img.At(j*avgw, i*avgh))
-			img.SetRGBA(x*w+j, y*w+i, rgba.(color.RGBA))
+			avg_col := color.RGBA{
+				uint8(avgr / (avgw * avgh)),
+				uint8(avgg / (avgw * avgh)),
+				uint8(avgb / (avgw * avgh)),
+				255,
+			}
+			img.SetRGBA(x*w+j, y*w+i, avg_col)
 		}
 	}
 }
