@@ -10,7 +10,8 @@ can be a flat color or an image.
 
 This grid file:
 
-```{
+```
+{
 	"Cells":
 	[
 		[1,0,0],
