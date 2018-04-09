@@ -16,6 +16,18 @@ type Grid struct {
 	Cells     [][]int
 	Tiles     map[int]Cell
 	CellWidth int
+	GridLines GridLine
+}
+
+type Cell struct {
+	Color color.RGBA
+	Image string
+	img   image.Image
+}
+
+type GridLine struct {
+	Color color.RGBA
+	Width int
 }
 
 func InitGrid(x, y, cellWidth int) *Grid {
@@ -62,6 +74,7 @@ func GridToImage(g *Grid) *image.RGBA {
 	height := len(g.Cells)
 	img := image.NewRGBA(image.Rect(0, 0, width*g.CellWidth, height*g.CellWidth))
 
+	// paint cells
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
 			v, ok := g.Tiles[g.Cells[y][x]]
@@ -70,13 +83,28 @@ func GridToImage(g *Grid) *image.RGBA {
 			}
 		}
 	}
-	return img
-}
 
-type Cell struct {
-	Color color.RGBA
-	Image string
-	img   image.Image
+	if g.GridLines.Width == 0 {
+		return img
+	}
+
+	// add grid lines
+	for y := 0; y < height*g.CellWidth; y++ {
+		for x := 0; x < width*g.CellWidth; x++ {
+			if y%g.CellWidth == 0 || y == height*g.CellWidth-1 {
+				for t := -g.GridLines.Width / 2; t <= g.GridLines.Width/2; t++ {
+					img.SetRGBA(x, y+t, g.GridLines.Color)
+				}
+			}
+			if x%g.CellWidth == 0 || x == width*g.CellWidth-1 {
+				for t := -g.GridLines.Width / 2; t <= g.GridLines.Width/2; t++ {
+					img.SetRGBA(x+t, y, g.GridLines.Color)
+				}
+			}
+		}
+	}
+
+	return img
 }
 
 // Paint a sub region of img with the contents of this cell.

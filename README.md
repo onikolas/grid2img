@@ -1,15 +1,14 @@
 # grid2img 
 
-Converts a grid file (JSON) into an image. The grid file has a simple format and is meant to be edited by
-hand. 
+Converts a grid file (text-JSON) into an image. The grid file has a simple format and is meant to 
+be edited by hand. 
 
 ## Grid File Syntax
 
 A 2D array of integers defines the grid. The numbers in the array are keys to the Tiles list. Each tile
 can be a flat color or an image.
 
-## Example Grid File
-
+This grid file:
 
 ```{
 	"Cells":
@@ -30,17 +29,25 @@ can be a flat color or an image.
  		"3":{"Color":{"R":0,"G":0,"B":0,"A":255}, "Image":"test.jpg"}
 	},
 
-	"CellWidth":30
+	"CellWidth":30,
+	
+	"GridLInes":
+	{
+		"Color":{"R":0,"G":0,"B":0,"A":150},
+		"Width":1
+	}
 }
 ```
 
-Will produce this output: ![output](img.png)
+Will produce this output: 
+
+![output](img.png)
 
 
 ## Usage
 
 `grid2img --grid [gridfile.json] --image [output.png]`
 
-If `--grid` is missing it will default to `grid.json`. If `--image` is missing it will default to `img.png`.
+If `--grid` is missing it will default to grid.json. If `--image` is missing it will default to img.png.
 
 
