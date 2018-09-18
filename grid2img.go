@@ -1,4 +1,4 @@
-package main
+package grid2img
 
 import (
 	"encoding/json"
@@ -128,21 +128,21 @@ func (a Cell) Paint(x, y, w int, img *image.RGBA) {
 	for i := 0; i < w; i++ {
 		for j := 0; j < w; j++ {
 
-			avgr, avgg, avgb := 0, 0, 0
+			avgr, avgg, avgb, avga := 0, 0, 0, 0
 			for k := 0; k < avgh; k++ {
 				for l := 0; l < avgw; l++ {
 					rgba := color.RGBAModel.Convert(a.img.At(j*avgw+l, i*avgh+k))
-					//avg_col.A += rgba.(color.RGBA).A
 					avgr += int(rgba.(color.RGBA).R)
 					avgg += int(rgba.(color.RGBA).G)
 					avgb += int(rgba.(color.RGBA).B)
+					avga += int(rgba.(color.RGBA).A)
 				}
 			}
 			avg_col := color.RGBA{
 				uint8(avgr / (avgw * avgh)),
 				uint8(avgg / (avgw * avgh)),
 				uint8(avgb / (avgw * avgh)),
-				255,
+				uint8(avga / (avgw * avgh)),
 			}
 			img.SetRGBA(x*w+j, y*w+i, avg_col)
 		}
